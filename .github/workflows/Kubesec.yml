@@ -1,0 +1,29 @@
+name: Kubesec Scan
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  kubesec:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan Kubernetes manifests
+        run: |
+          find . -type f \( -name '*.yaml' -o -name '*.yml' \) \
+            -not -path './.git/*' \
+            -print0 |
+          while IFS= read -r -d '' file; do
+            echo "Scanning $file"
+            docker run --rm -i \
+              -v "$PWD:/work" \
+              kubesec/kubesec:v2 \
+              scan "/work/${file#./}"
+          done
