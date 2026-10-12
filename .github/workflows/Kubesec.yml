@@ -9,17 +9,21 @@ permissions:
 
 jobs:
   kubesec:
+    name: Scan Kubernetes manifests
     runs-on: ubuntu-latest
 
     steps:
-           - name: Scan Kubernetes manifests
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan Kubernetes manifests
         shell: bash
         run: |
           files=$(find ./kubernetes-manifests ./istio-manifests ./kustomize \
             -type f \( -name '*.yaml' -o -name '*.yml' \) -print 2>/dev/null)
 
           if [ -z "$files" ]; then
-            echo "No Kubernetes YAML files found"
+            echo "No Kubernetes YAML files found in the configured folders."
             exit 1
           fi
 
